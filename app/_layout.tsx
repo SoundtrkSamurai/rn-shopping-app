@@ -27,6 +27,10 @@ export default function RootLayout() {
             },
           }}
         />
+        <Stack.Screen
+          name="product/[id]"
+          options={{ headerBackTitle: "Products", title: "Product Details" }}
+        />
       </Stack>
     </QueryClientProvider>
   );
