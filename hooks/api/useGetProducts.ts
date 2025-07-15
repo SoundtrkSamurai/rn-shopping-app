@@ -14,14 +14,21 @@ export default function useGetProducts() {
     data: products,
     isLoading,
     error,
+    refetch: refetchProducts,
+    isRefetching: isRefetchingProducts,
   } = useQuery({
     queryKey: ["products"],
     queryFn: getProducts,
   });
 
-  return useMemo(() => ({
-    error,
-    isLoading,
-    products,
-  }), [error, isLoading, products]);
+  return useMemo(
+    () => ({
+      error,
+      isLoading,
+      products,
+      refetchProducts,
+      isRefetchingProducts,
+    }),
+    [error, isLoading, products, refetchProducts, isRefetchingProducts]
+  );
 }
