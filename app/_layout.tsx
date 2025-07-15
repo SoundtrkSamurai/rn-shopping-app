@@ -17,7 +17,15 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen
           name="index"
-          options={{ title: "Galactic Products", headerShadowVisible: false }}
+          options={{
+            title: "Galactic Products",
+            headerShadowVisible: false,
+            headerSearchBarOptions: {
+              placeholder: "Search products...",
+              hideWhenScrolling: false,
+              hideNavigationBar: false,
+            },
+          }}
         />
       </Stack>
     </QueryClientProvider>
