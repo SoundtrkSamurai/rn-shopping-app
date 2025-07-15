@@ -1,4 +1,5 @@
 import ProductCard from "@/components/ProductCard";
+import { ProductShimmerGrid } from "@/components/ProductListShimmer";
 import useGetCategories from "@/hooks/api/useGetCategories";
 import useGetProducts from "@/hooks/api/useGetProducts";
 import { Product } from "@/types/interfaces";
@@ -17,7 +18,8 @@ import {
 } from "react-native";
 
 export default function Index() {
-  const { products, refetchProducts, isRefetchingProducts } = useGetProducts();
+  const { products, isLoading, refetchProducts, isRefetchingProducts } =
+    useGetProducts();
   const { categories } = useGetCategories();
   const headerHeight = useHeaderHeight();
 
@@ -72,22 +74,26 @@ export default function Index() {
                     selectedCategory === category ? COLORS.primary : "black",
                 }}
               >
-                {category}
+                {category.charAt(0).toUpperCase() + category.slice(1)}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
-      <FlashList
-        data={filteredProducts}
-        renderItem={renderProduct}
-        keyExtractor={(item: Product) => item.id.toString()}
-        estimatedItemSize={200}
-        numColumns={2}
-        contentContainerStyle={{ padding: 8 }}
-        refreshing={isRefetchingProducts}
-        onRefresh={refetchProducts}
-      />
+      {isLoading ? (
+        <ProductShimmerGrid />
+      ) : (
+        <FlashList
+          data={filteredProducts}
+          renderItem={renderProduct}
+          keyExtractor={(item: Product) => item.id.toString()}
+          estimatedItemSize={200}
+          numColumns={2}
+          contentContainerStyle={{ padding: 8 }}
+          refreshing={isRefetchingProducts}
+          onRefresh={refetchProducts}
+        />
+      )}
     </View>
   );
 }
