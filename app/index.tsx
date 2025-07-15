@@ -1,25 +1,29 @@
-import useGetCategories from "@/hooks/api/useGetCategories";
+import ProductCard from "@/components/ProductCard";
 import useGetProducts from "@/hooks/api/useGetProducts";
 import { Product } from "@/types/interfaces";
 import { FlashList } from "@shopify/flash-list";
-import { StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { StyleSheet, View } from "react-native";
 
 export default function Index() {
-  const { products } = useGetProducts();
+  const { products, refetchProducts, isRefetchingProducts } = useGetProducts();
 
-  const { categories } = useGetCategories();
+  const renderProduct = useCallback(
+    ({ item }: { item: Product }) => <ProductCard product={item} />,
+    []
+  );
 
   return (
     <View style={styles.container}>
       <FlashList
         data={products ?? []}
-        renderItem={({ item }: { item: Product }) => (
-          <View style={{ padding: 20 }}>
-            <Text>{item.title}</Text>
-          </View>
-        )}
-        keyExtractor={(item: Product) => item.id?.toString() ?? item.title}
-        estimatedItemSize={50}
+        renderItem={renderProduct}
+        keyExtractor={(item: Product) => item.id.toString()}
+        estimatedItemSize={200}
+        numColumns={2}
+        contentContainerStyle={{ padding: 8 }}
+        refreshing={isRefetchingProducts}
+        onRefresh={refetchProducts}
       />
     </View>
   );
