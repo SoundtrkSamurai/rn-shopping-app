@@ -1,11 +1,13 @@
 import { ProductDetailsShimmer } from "@/components/ProductDetailsShimmer";
 import useGetProduct from "@/hooks/api/useGetProduct";
+import useCartStore from "@/store/cartStore";
 import { COLORS } from "@/utils/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,9 +20,12 @@ const ProductDetails = () => {
   const { id } = useLocalSearchParams();
   const { product, isLoading } = useGetProduct(id as string);
   const { bottom } = useSafeAreaInsets();
+  const { addProduct } = useCartStore();
 
   const handleAddToCart = () => {
-    // Logic to add product to cart
+    if (!product) return;
+    console.log("Adding product to cart:", product);
+    addProduct(product);
   };
 
   if (isLoading) {
@@ -58,7 +63,15 @@ const ProductDetails = () => {
         </View>
       </ScrollView>
       <TouchableOpacity
-        style={[styles.addToCartButton, { paddingBottom: bottom + 10 }]}
+        style={[
+          styles.addToCartButton,
+          {
+            paddingBottom: Platform.select({
+              ios: bottom,
+              android: bottom + 10,
+            }),
+          },
+        ]}
         onPress={handleAddToCart}
       >
         <Ionicons name="cart" size={24} color="#fff" />
