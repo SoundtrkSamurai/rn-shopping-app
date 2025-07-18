@@ -1,3 +1,4 @@
+import CartItem from "@/components/CartItem";
 import useCartStore from "@/store/cartStore";
 import { COLORS } from "@/utils/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -42,11 +43,7 @@ const Cart = () => {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View>
-            <Text>{item.title}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => <CartItem item={item} />}
         ListHeaderComponent={() => (
           <>
             {products.length > 0 && (

@@ -8,6 +8,7 @@ export interface CartState {
   count: number;
   addProduct: (product: Product) => void;
   removeProduct: (productId: number) => void;
+  reduceProduct: (product: number) => void;
   clearCart: () => void;
 }
 
@@ -41,11 +42,11 @@ const useCartStore = create<CartState>()(
           };
         });
       },
-      reduceProduct: (product: Product) => {
+      reduceProduct: (productId: number) => {
         set((state) => {
           const updatedProducts = state.products
             .map((p) =>
-              p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
+              p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
             )
             .filter((p) => p.quantity > 0);
           return {
