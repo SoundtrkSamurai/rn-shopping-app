@@ -4,7 +4,14 @@ import { COLORS } from "@/utils/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import React, { useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { RectButton } from "react-native-gesture-handler";
 import ReanimatedSwipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -73,39 +80,31 @@ const CartItem = ({ item }: CartItemProps) => {
     });
     return (
       <Reanimated.View style={styleAnimation}>
-        <View style={styles.swipeableButtonContainer}>
-          <TouchableOpacity
-            style={[styles.deleteButton, styles.swipeableButton]}
-            onPress={async () => {
+        <RectButton
+          style={[styles.deleteButton, styles.swipeableButton]}
+          onPress={() => {
+            console.log("Delete pressed");
+            if (Platform.OS === "ios") {
               opacityAnim.value = withTiming(0, {
                 duration: 300,
                 easing: Easing.inOut(Easing.ease),
               });
+            }
 
-              heightAnim.value = withTiming(0, {
-                duration: 300,
-                easing: Easing.inOut(Easing.ease),
-              });
+            heightAnim.value = withTiming(0, {
+              duration: 300,
+              easing: Easing.inOut(Easing.ease),
+            });
 
-              await new Promise((resolve) => setTimeout(resolve, 300));
+            setTimeout(() => {
               reanimatedRef.current?.close();
               removeProduct(item.id);
-            }}
-          >
-            <Ionicons name="trash" size={28} color="#fff" />
-            <Text style={styles.deleteButtonText}>Delete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.swipeableButton, styles.cancelButton]}
-            onPress={() => {
-              // Optionally close the swipeable after action
-              reanimatedRef.current?.close();
-            }}
-          >
-            <Ionicons name="close" size={28} color="#fff" />
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+            }, 300);
+          }}
+        >
+          <Ionicons name="trash" size={28} color="#fff" />
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </RectButton>
       </Reanimated.View>
     );
   };
