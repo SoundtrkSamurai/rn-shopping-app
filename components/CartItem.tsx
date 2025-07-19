@@ -82,7 +82,7 @@ const CartItem = ({ item }: CartItemProps) => {
       <Reanimated.View style={styleAnimation}>
         <RectButton
           style={[styles.deleteButton, styles.swipeableButton]}
-          onPress={() => {
+          onPress={async () => {
             console.log("Delete pressed");
             if (Platform.OS === "ios") {
               opacityAnim.value = withTiming(0, {
@@ -96,10 +96,9 @@ const CartItem = ({ item }: CartItemProps) => {
               easing: Easing.inOut(Easing.ease),
             });
 
-            setTimeout(() => {
-              reanimatedRef.current?.close();
-              removeProduct(item.id);
-            }, 300);
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            reanimatedRef.current?.close();
+            removeProduct(item.id);
           }}
         >
           <Ionicons name="trash" size={28} color="#fff" />
