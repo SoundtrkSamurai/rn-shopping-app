@@ -6,6 +6,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,38 +25,40 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: "Galactic Products",
-            headerShadowVisible: false,
-            headerSearchBarOptions: {
-              placeholder: "Search products...",
-              hideWhenScrolling: false,
-              hideNavigationBar: false,
-            },
-            headerRight: () => <CartButton />,
-          }}
-        />
-        <Stack.Screen
-          name="product/[id]"
-          options={{ headerBackTitle: "Products", title: "Product Details" }}
-        />
-        <Stack.Screen
-          name="cart"
-          options={{
-            title: "Shopping Cart",
-            headerBackTitle: "Products",
-            presentation: "modal",
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => router.dismiss()}>
-                <Ionicons name="close" size={24} color="black" />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </Stack>
+      <GestureHandlerRootView>
+        <Stack>
+          <Stack.Screen
+            name="index"
+            options={{
+              title: "Galactic Products",
+              headerShadowVisible: false,
+              headerSearchBarOptions: {
+                placeholder: "Search products...",
+                hideWhenScrolling: false,
+                hideNavigationBar: false,
+              },
+              headerRight: () => <CartButton />,
+            }}
+          />
+          <Stack.Screen
+            name="product/[id]"
+            options={{ headerBackTitle: "Products", title: "Product Details" }}
+          />
+          <Stack.Screen
+            name="cart"
+            options={{
+              title: "Shopping Cart",
+              headerBackTitle: "Products",
+              presentation: "modal",
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => router.dismiss()}>
+                  <Ionicons name="close" size={24} color="black" />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+        </Stack>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }

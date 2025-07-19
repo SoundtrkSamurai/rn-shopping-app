@@ -24,7 +24,6 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
-    console.log("Adding product to cart:", product);
     addProduct(product);
   };
 
