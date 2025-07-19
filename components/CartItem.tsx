@@ -3,15 +3,31 @@ import { Product } from "@/types/interfaces";
 import { COLORS } from "@/utils/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ReanimatedSwipeable, {
+  SwipeableMethods,
+} from "react-native-gesture-handler/ReanimatedSwipeable";
+import Reanimated, {
+  Easing,
+  SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 interface CartItemProps {
   item: Product & { quantity: number };
 }
 
 const CartItem = ({ item }: CartItemProps) => {
-  const { addProduct, reduceProduct } = useCartStore();
+  const { addProduct, reduceProduct, removeProduct } = useCartStore();
+  const reanimatedRef = useRef<SwipeableMethods>(null);
+  const opacityAnim = useSharedValue(1);
+  const scaleAnim = useSharedValue(1);
+  const heightAnim = useSharedValue(80);
 
   const handleQuantityChange = (action: "increment" | "decrement") => {
     // Handle increment or decrement of item quantity
@@ -21,35 +37,123 @@ const CartItem = ({ item }: CartItemProps) => {
     } else {
       reduceProduct(item.id);
     }
-    console.log(`Quantity ${action} for item: ${item.title}`);
+
+    scaleAnim.value = withSequence(
+      withSpring(1.2, { damping: 2, stiffness: 80 }),
+      withSpring(1, { damping: 2, stiffness: 80 })
+    );
   };
+
+  const quantityAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scaleAnim.value }],
+    };
+  });
+
+  const closeAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacityAnim.value,
+      height: heightAnim.value,
+    };
+  });
+
+  const LeftActions = (
+    progress: SharedValue<number>,
+    dragX: SharedValue<number>
+  ) => {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        opacity: progress.value,
+        transform: [
+          {
+            translateX: dragX.value < 0 ? -dragX.value : 0,
+          },
+        ],
+      };
+    });
+    return (
+      <Reanimated.View style={styleAnimation}>
+        <View style={styles.swipeableButtonContainer}>
+          <TouchableOpacity
+            style={[styles.deleteButton, styles.swipeableButton]}
+            onPress={async () => {
+              opacityAnim.value = withTiming(0, {
+                duration: 300,
+                easing: Easing.inOut(Easing.ease),
+              });
+
+              heightAnim.value = withTiming(0, {
+                duration: 300,
+                easing: Easing.inOut(Easing.ease),
+              });
+
+              await new Promise((resolve) => setTimeout(resolve, 300));
+              reanimatedRef.current?.close();
+              removeProduct(item.id);
+            }}
+          >
+            <Ionicons name="trash" size={28} color="#fff" />
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.swipeableButton, styles.cancelButton]}
+            onPress={() => {
+              // Optionally close the swipeable after action
+              reanimatedRef.current?.close();
+            }}
+          >
+            <Ionicons name="close" size={28} color="#fff" />
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Reanimated.View>
+    );
+  };
+
   return (
-    <View style={styles.cartItemContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={styles.cartItemDetails}>
-        <Text style={styles.cartItemTitle}>{item.title}</Text>
-        <Text style={styles.cartItemPrice}>
-          Price: ${item.price.toFixed(2)}
-        </Text>
-      </View>
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            handleQuantityChange("decrement");
-          }}
-        >
-          <Ionicons name="remove" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
-        <TouchableOpacity
-          onPress={() => {
-            handleQuantityChange("increment");
-          }}
-        >
-          <Ionicons name="add" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-    </View>
+    <Reanimated.View style={closeAnimatedStyle}>
+      <ReanimatedSwipeable
+        ref={reanimatedRef}
+        renderLeftActions={LeftActions}
+        overshootRight={false}
+        friction={2}
+        rightThreshold={50}
+        containerStyle={styles.swipeable}
+      >
+        <View style={styles.cartItemContainer}>
+          <Image source={{ uri: item.image }} style={styles.image} />
+          <View style={styles.cartItemDetails}>
+            <Text style={styles.cartItemTitle} numberOfLines={1}>
+              {item.title}
+            </Text>
+            <Text style={styles.cartItemPrice}>
+              Price: ${item.price.toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                handleQuantityChange("decrement");
+              }}
+            >
+              <Ionicons name="remove" size={24} color="black" />
+            </TouchableOpacity>
+            <Reanimated.Text
+              style={[styles.quantityText, quantityAnimatedStyle]}
+            >
+              {item.quantity}
+            </Reanimated.Text>
+            <TouchableOpacity
+              onPress={() => {
+                handleQuantityChange("increment");
+              }}
+            >
+              <Ionicons name="add" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ReanimatedSwipeable>
+    </Reanimated.View>
   );
 };
 
@@ -106,5 +210,37 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderRadius: 5,
     backgroundColor: COLORS.primary,
+  },
+  swipeableButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "96%",
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  deleteButton: {
+    backgroundColor: "#ff3b30",
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginTop: 4,
+  },
+  cancelButton: {
+    backgroundColor: "#007AFF",
+  },
+  cancelButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginTop: 4,
+  },
+  swipeable: {
+    marginRight: 4,
+  },
+  swipeableButtonContainer: {
+    flexDirection: "row",
+    gap: 10,
+    marginLeft: 5,
   },
 });
