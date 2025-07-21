@@ -1,52 +1,52 @@
 {
   "expo": {
-    "name": "rn-shopping-app",
-    "slug": "rn-shopping-app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "rnshoppingapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.soundtrksamurai.rnshoppingapp"
-    },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/images/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.soundtrksamurai.rnshoppingapp"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+    "experiments": {
+      "typedRoutes": true
     },
+    "icon": "./assets/images/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.soundtrksamurai.rnshoppingapp",
+      "supportsTablet": true
+    },
+    "name": "rn-shopping-app",
+    "newArchEnabled": true,
+    "orientation": "portrait",
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
+          "backgroundColor": "#ffffff",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "resizeMode": "contain"
         }
       ],
       [
         "@sentry/react-native/expo",
         {
-          "url": "https://sentry.io/",
+          "organization": "allen-taylor",
           "project": "react-native-shopping-app",
-          "organization": "allen-taylor"
+          "url": "https://sentry.io/"
         }
       ]
     ],
-    "experiments": {
-      "typedRoutes": true
+    "scheme": "soundtrksamuraishop",
+    "slug": "rn-shopping-app",
+    "userInterfaceStyle": "automatic",
+    "version": "1.0.0",
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "output": "static"
     }
   }
 }
