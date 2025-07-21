@@ -20,7 +20,6 @@ expo-env.d.ts
 
 # Metro
 .metro-health-check*
-sentry.properties
 # debug
 npm-debug.*
 yarn-debug.*

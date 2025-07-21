@@ -22,6 +22,37 @@ const queryClient = new QueryClient({
   },
 });
 
+// Get Sentry DSN from environment variable
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+// Initialize Sentry once at the module level
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    attachScreenshot: true,
+    debug: __DEV__,
+    tracesSampleRate: 1.0,
+    _experiments: {
+      profileSampleRate: 0.1,
+      replyasSessionsSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    },
+    sendDefaultPii: true,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1,
+    integrations: [
+      Sentry.mobileReplayIntegration({
+        maskAllText: false,
+        maskAllImages: true,
+        maskAllVectors: false,
+      }),
+      Sentry.spotlightIntegration(),
+      Sentry.feedbackIntegration(),
+      navigationIntegration,
+    ],
+  });
+}
+
 export default Sentry.wrap(function RootLayout() {
   useReactQueryDevTools(queryClient);
   useMMKVDevTools({
@@ -34,38 +65,6 @@ export default Sentry.wrap(function RootLayout() {
   useEffect(() => {
     navigationIntegration.registerNavigationContainer(ref);
   }, [ref]);
-
-  // Get Sentry DSN from environment variable
-  const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
-
-  useEffect(() => {
-    if (sentryDsn) {
-      Sentry.init({
-        dsn: sentryDsn,
-        attachScreenshot: true,
-        debug: __DEV__,
-        tracesSampleRate: 1.0,
-        _experiments: {
-          profileSampleRate: 0.1,
-          replyasSessionsSampleRate: 0.1,
-          replaysOnErrorSampleRate: 1.0,
-        },
-        sendDefaultPii: true,
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1,
-        integrations: [
-          Sentry.mobileReplayIntegration({
-            maskAllText: false,
-            maskAllImages: true,
-            maskAllVectors: false,
-          }),
-          Sentry.spotlightIntegration(),
-          Sentry.feedbackIntegration(),
-          navigationIntegration,
-        ],
-      });
-    }
-  }, [sentryDsn]);
 
   return (
     <QueryClientProvider client={queryClient}>
