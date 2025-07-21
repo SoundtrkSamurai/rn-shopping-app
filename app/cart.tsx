@@ -47,7 +47,9 @@ const Cart = () => {
         ListHeaderComponent={() => (
           <>
             {products.length > 0 && (
-              <Text style={styles.totalPrice}>Total: ${totalPrice}</Text>
+              <Text style={styles.totalPrice}>
+                Total: ${totalPrice.toFixed(2)}
+              </Text>
             )}
           </>
         )}
