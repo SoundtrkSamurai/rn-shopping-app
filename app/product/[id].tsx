@@ -9,6 +9,7 @@ import React from "react";
 import {
   Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,6 +28,22 @@ const ProductDetails = () => {
     addProduct(product);
   };
 
+  const onShare = async () => {
+    if (!product) return;
+    // Share the product details using a custom URL scheme
+    const url = `soundtrksamuraishop://product/${product.id}`;
+    if (Platform.OS === "ios") {
+      await Share.share({
+        url,
+      });
+    } else {
+      await Share.share({
+        title: product.title,
+        message: `Check out this product: ${url}`,
+      });
+    }
+  };
+
   if (isLoading) {
     return <ProductDetailsShimmer />;
   }
@@ -40,6 +57,11 @@ const ProductDetails = () => {
       <Stack.Screen
         options={{
           title: product?.title,
+          headerRight: () => (
+            <TouchableOpacity onPress={onShare}>
+              <Ionicons name="share-outline" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <ScrollView>
