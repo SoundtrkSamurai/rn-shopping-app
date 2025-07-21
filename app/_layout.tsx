@@ -38,34 +38,32 @@ export default Sentry.wrap(function RootLayout() {
   // Get Sentry DSN from environment variable
   const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
-  useEffect(() => {
-    if (sentryDsn) {
-      Sentry.init({
-        dsn: sentryDsn,
-        attachScreenshot: true,
-        debug: __DEV__,
-        tracesSampleRate: 1.0,
-        _experiments: {
-          profileSampleRate: 0.1,
-          replyasSessionsSampleRate: 0.1,
-          replaysOnErrorSampleRate: 1.0,
-        },
-        sendDefaultPii: true,
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1,
-        integrations: [
-          Sentry.mobileReplayIntegration({
-            maskAllText: false,
-            maskAllImages: true,
-            maskAllVectors: false,
-          }),
-          Sentry.spotlightIntegration(),
-          Sentry.feedbackIntegration(),
-          navigationIntegration,
-        ],
-      });
-    }
-  }, [sentryDsn]);
+  if (sentryDsn) {
+    Sentry.init({
+      dsn: sentryDsn,
+      attachScreenshot: true,
+      debug: __DEV__,
+      tracesSampleRate: 1.0,
+      _experiments: {
+        profileSampleRate: 0.1,
+        replyasSessionsSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+      },
+      sendDefaultPii: true,
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1,
+      integrations: [
+        Sentry.mobileReplayIntegration({
+          maskAllText: false,
+          maskAllImages: true,
+          maskAllVectors: false,
+        }),
+        Sentry.spotlightIntegration(),
+        Sentry.feedbackIntegration(),
+        navigationIntegration,
+      ],
+    });
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
