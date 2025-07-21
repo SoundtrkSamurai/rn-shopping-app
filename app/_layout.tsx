@@ -3,10 +3,16 @@ import { storage } from "@/store/mmkv";
 import { useMMKVDevTools } from "@dev-plugins/react-native-mmkv";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useNavigationContainerRef, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: true,
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,12 +22,50 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   useReactQueryDevTools(queryClient);
   useMMKVDevTools({
     storage,
   });
   const router = useRouter();
+
+  const ref = useNavigationContainerRef();
+
+  useEffect(() => {
+    navigationIntegration.registerNavigationContainer(ref);
+  }, [ref]);
+
+  // Get Sentry DSN from environment variable
+  const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+  useEffect(() => {
+    if (sentryDsn) {
+      Sentry.init({
+        dsn: sentryDsn,
+        attachScreenshot: true,
+        debug: __DEV__,
+        tracesSampleRate: 1.0,
+        _experiments: {
+          profileSampleRate: 0.1,
+          replyasSessionsSampleRate: 0.1,
+          replaysOnErrorSampleRate: 1.0,
+        },
+        sendDefaultPii: true,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1,
+        integrations: [
+          Sentry.mobileReplayIntegration({
+            maskAllText: false,
+            maskAllImages: true,
+            maskAllVectors: false,
+          }),
+          Sentry.spotlightIntegration(),
+          Sentry.feedbackIntegration(),
+          navigationIntegration,
+        ],
+      });
+    }
+  }, [sentryDsn]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -61,4 +105,4 @@ export default function RootLayout() {
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
-}
+});
