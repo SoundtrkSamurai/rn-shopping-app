@@ -20,7 +20,7 @@ expo-env.d.ts
 
 # Metro
 .metro-health-check*
-
+sentry.properties
 # debug
 npm-debug.*
 yarn-debug.*
@@ -39,3 +39,8 @@ yarn-error.*
 app-example
 
 .env.local
+
+# Sentry
+# Add sentry.properties files to .gitignore
+# In your .gitignore file, add: 
+sentry.properties
